@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -8,16 +8,15 @@ import {
   FormControl,
   Grid,
   InputLabel,
-  Link,
   List,
   ListItem,
-  ListItemText,
   MenuItem,
   Select,
   TextField,
   Typography,
 } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import StopIcon from '@mui/icons-material/Stop';
 import CircularProgress from '@mui/material/CircularProgress';
 
 const PLAY_STATES = {
@@ -30,132 +29,108 @@ export default function Home() {
   const [model, setModel] = useState('');
   const [text, setText] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [loading, setLoading] = useState('');
   const [playState, setPlayState] = useState(PLAY_STATES.NO_AUDIO);
-  const [audio, setAudio] = useState(null);
+  const audioRef = useRef(null);
 
   const models = [
-    { 'label': 'Asteria',
-      'attr': 'Female US English',
-      'value': 'aura-asteria-en'
-    },
-    { 'label': 'Luna',
-      'attr': 'Female US English',
-      'value': 'aura-luna-en'
-    },
-    {
-      'label': 'Stella',
-      'attr': 'Female US English',
-      'value': 'aura-stella-en'
-    },
-    {
-      'label': 'Athena',
-      'attr': 'Female UK English',
-      'value': 'aura-athena-en'
-    },
-    {
-      'label': 'Hera',
-      'attr': 'Female US English',
-      'value': 'aura-hera-en'
-    },
-    {
-      'label': 'Orion',
-      'attr': 'Male US English',
-      'value': 'aura-orion-en'
-    },
-    {
-      'label': 'Arcas',
-      'attr': 'Male US English',
-      'value': 'aura-arcas-en'
-    },
-    {
-      'label': 'Perseus',
-      'attr': 'Male US English',
-      'value': 'aura-perseus-en'
-    },
-    {
-      'label': 'Angus',
-      'attr': 'Male Irish English',
-      'value': 'aura-angus-en'
-    },
-    {
-      'label': 'Orpheus',
-      'attr': 'Male US English',
-      'value': 'aura-orpheus-en'
-    },
-    {
-      'label': 'Helios',
-      'attr': 'Male UK English',
-      'value': 'aura-helios-en'
-    },
-    {
-      'label': 'Zeus',
-      'attr': 'Male US English',
-      'value': 'aura-zeus-en'
-    },
+    { label: 'Asteria', attr: 'Female US English', value: 'aura-asteria-en' },
+    { label: 'Luna', attr: 'Female US English', value: 'aura-luna-en' },
+    { label: 'Stella', attr: 'Female US English', value: 'aura-stella-en' },
+    { label: 'Athena', attr: 'Female UK English', value: 'aura-athena-en' },
+    { label: 'Hera', attr: 'Female US English', value: 'aura-hera-en' },
+    { label: 'Orion', attr: 'Male US English', value: 'aura-orion-en' },
+    { label: 'Arcas', attr: 'Male US English', value: 'aura-arcas-en' },
+    { label: 'Perseus', attr: 'Male US English', value: 'aura-perseus-en' },
+    { label: 'Angus', attr: 'Male Irish English', value: 'aura-angus-en' },
+    { label: 'Orpheus', attr: 'Male US English', value: 'aura-orpheus-en' },
+    { label: 'Helios', attr: 'Male UK English', value: 'aura-helios-en' },
+    { label: 'Zeus', attr: 'Male US English', value: 'aura-zeus-en' },
   ];
 
+  const getButtonIcon = () => {
+    switch (playState) {
+      case PLAY_STATES.NO_AUDIO:
+        return <PlayArrowIcon sx={{ fontSize: '1.5rem', color: 'inherit' }} />;
+      case PLAY_STATES.LOADING:
+        return <CircularProgress size={24} />;
+      case PLAY_STATES.PLAYING:
+        return <StopIcon sx={{ fontSize: '1.5rem', color: 'inherit' }} />;
+      default:
+        return <PlayArrowIcon sx={{ fontSize: '1.5rem', color: 'inherit' }} />;
+    }
+  };
 
   const playAudio = (audioUrl) => {
-    console.log('initializing playAudio in url: ', audioUrl);
-    if (audio) {
+    console.log('Initializing playAudio with URL:', audioUrl);
+
+    if (!audioRef.current) {
+      audioRef.current = new Audio();
+    } else {
+      // Stop any existing audio before playing new
       stopAudio();
     }
 
-    // Create a new Audio object
-    const currentAudio = new Audio(audioUrl) 
-    setAudio(currentAudio);
+    const cacheBustedUrl = `${audioUrl}?t=${new Date().getTime()}`;
+    audioRef.current.src = cacheBustedUrl;
 
-    // Play the audio
-    currentAudio.play();
+    // Remove any existing event listeners to prevent duplicates
+    audioRef.current.removeEventListener('ended', handleAudioEnded);
 
-    // Update the play state
+    audioRef.current.play();
+
+    audioRef.current.addEventListener('ended', handleAudioEnded);
+
     setPlayState(PLAY_STATES.PLAYING);
-  }
+  };
 
   const stopAudio = () => {
-    if (audio) {
-      audio.pause();
-      audio.currentTime = 0;
+    if (audioRef.current) {
+      console.log('Stopping audio');
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current.removeEventListener('ended', handleAudioEnded);
+      // Do not set audioRef.current to null
       setPlayState(PLAY_STATES.NO_AUDIO);
+    } else {
+      console.log('No audio to stop');
     }
-  }
+  };
 
-
+  const handleAudioEnded = () => {
+    console.log('Audio finished playing');
+    setPlayState(PLAY_STATES.NO_AUDIO);
+  };
 
   const generateAudio = async () => {
-    setLoading(true)
+    setPlayState(PLAY_STATES.LOADING);
+    setErrorMessage('');
     try {
-      // const params = {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({
-      //   voice: model,
-      //   text: text,
-      //   }),
-      // }
+      const response = await fetch('/api/voice', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          voice: model,
+          text: text,
+        }),
+      });
 
-      // const response = await fetch(`api/voice`, params)
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-      // if (!response.ok) {
-      //   throw new Error(`HTTP error! status: ${response.status}`);
-      // }
+      const data = await response.json();
+      const audioUrl = data.audioUrl;
 
-      // const {audioUrl} = await response.json()
-      const audioUrl = 'audio/default.mp3'
-      console.log('Returned audioUrl from the API call: ', audioUrl)
+      console.log('Returned audioUrl from the API call:', audioUrl);
       playAudio(audioUrl);
-      // playState = PLAY_STATES.PLAYING;
-      // updatePlayButton();
     } catch (error) {
+      console.error('Error generating audio:', error);
       setErrorMessage(`An error occurred: ${error.message}`);
-      setLoading(false)
-    } finally {
-      setLoading(false)
+      setPlayState(PLAY_STATES.NO_AUDIO);
     }
-  }
+  };
 
   const handleModelChange = (event) => {
     setModel(event.target.value);
@@ -166,14 +141,33 @@ export default function Home() {
   };
 
   const handlePlayButtonClick = () => {
-    if (!model || !text.trim()) {
-      setErrorMessage('Please select a model and enter text.');
-      return;
+    console.log('handlePlayButtonClick called with playState:', playState);
+    switch (playState) {
+      case PLAY_STATES.NO_AUDIO:
+        if (!model || !text.trim()) {
+          setErrorMessage('Please select a model and enter text.');
+          return;
+        }
+        setErrorMessage('');
+        generateAudio();
+        break;
+      case PLAY_STATES.PLAYING:
+        console.log('Stopping audio from handlePlayButtonClick');
+        stopAudio();
+        break;
+      default:
+        break;
     }
-    setErrorMessage('');
-    
-    generateAudio();
   };
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.removeEventListener('ended', handleAudioEnded);
+        audioRef.current.pause();
+      }
+    };
+  }, []);
 
   return (
     <Box
@@ -223,7 +217,10 @@ export default function Home() {
         <Grid container spacing={4} className="grid-container">
           {/* Text-to-Speech Section */}
           <Grid item xs={12} md={6}>
-            <Box className="tts-section" sx={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <Box
+              className="tts-section"
+              sx={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
+            >
               {/* Model Selection */}
               <FormControl variant="outlined" fullWidth>
                 <InputLabel sx={{ color: '#fff' }}>Choose a model</InputLabel>
@@ -250,13 +247,24 @@ export default function Home() {
                     },
                   }}
                 >
-                  {models.map(({label, value, attr}, index) => (
-                  <MenuItem key={index} value={value} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Typography color='#201cff'>{label}</Typography>
-                    <Typography variant="body2" sx={{ color: 'gray', fontSize: '12px', marginLeft: 'auto' }}>
-                      {attr}
-                    </Typography>
-                  </MenuItem>
+                  {models.map(({ label, value, attr }, index) => (
+                    <MenuItem
+                      key={index}
+                      value={value}
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <Typography color="#201cff">{label}</Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{ color: 'gray', fontSize: '12px', marginLeft: 'auto' }}
+                      >
+                        {attr}
+                      </Typography>
+                    </MenuItem>
                   ))}
                 </Select>
               </FormControl>
@@ -293,9 +301,19 @@ export default function Home() {
               />
 
               {/* Button and Error Message */}
-              <Box className="button-container" sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Box
+                className="button-container"
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
                 {errorMessage && (
-                  <Typography id="error-message" sx={{ color: 'rgb(255, 74, 93)', fontWeight: 800 }}>
+                  <Typography
+                    id="error-message"
+                    sx={{ color: 'rgb(255, 74, 93)', fontWeight: 800 }}
+                  >
                     {errorMessage}
                   </Typography>
                 )}
@@ -304,8 +322,12 @@ export default function Home() {
                   id="play-button"
                   onClick={handlePlayButtonClick}
                   sx={{
-                    background: `linear-gradient(#000, #000) padding-box,
-                    linear-gradient(90deg, #201cff -91.5%, #13ef95 80.05%) border-box`,
+                    background:
+                      playState === PLAY_STATES.PLAYING
+                        ? `linear-gradient(#000, #000) padding-box,
+                        linear-gradient(90deg, #201cff -91.5%, #13ef95 80.05%) border-box`
+                        : `linear-gradient(#101014, #101014) padding-box,
+                        linear-gradient(200deg, #13ef95 -191.5%, #101014 80.05%) border-box`,
                     height: '48px',
                     width: '113px',
                     border: '1px solid transparent',
@@ -318,11 +340,7 @@ export default function Home() {
                     },
                   }}
                 >
-                  {loading ? (
-                    <CircularProgress size={24} />
-                  ): (
-                    <PlayArrowIcon className="button-icon" sx={{ fontSize: '1.5rem', color: 'inherit' }} />
-                  )}
+                  {getButtonIcon()}
                 </Button>
               </Box>
             </Box>
@@ -337,15 +355,41 @@ export default function Home() {
                 color: 'rgb(237, 237, 242)',
               }}
             >
-              <Typography variant="h2" sx={{ fontWeight: 700, fontSize: '2rem', lineHeight: '3.75rem', letterSpacing: '-0.02em' }}>
+              <Typography
+                variant="h2"
+                sx={{
+                  fontWeight: 700,
+                  fontSize: '2rem',
+                  lineHeight: '3.75rem',
+                  letterSpacing: '-0.02em',
+                }}
+              >
                 Sample texts:
               </Typography>
-              <List sx={{ fontFamily: 'Arimo, sans-serif', paddingLeft: 0, gap: '16px' }}>
-                <ListItem sx={{ display: 'list-item', listStyleType: 'disc', marginLeft: '1em' }}>
-                This is a sample text
+              <List
+                sx={{
+                  fontFamily: 'Arimo, sans-serif',
+                  paddingLeft: 0,
+                  gap: '16px',
+                }}
+              >
+                <ListItem
+                  sx={{
+                    display: 'list-item',
+                    listStyleType: 'disc',
+                    marginLeft: '1em',
+                  }}
+                >
+                  This is a sample text
                 </ListItem>
-                <ListItem sx={{ display: 'list-item', listStyleType: 'disc', marginLeft: '1em' }}>
-                Hello World, my name is Gaffy. Nice to meet you.
+                <ListItem
+                  sx={{
+                    display: 'list-item',
+                    listStyleType: 'disc',
+                    marginLeft: '1em',
+                  }}
+                >
+                  Hello World, my name is Gaffy. Nice to meet you.
                 </ListItem>
               </List>
             </Box>
