@@ -204,11 +204,15 @@ export default function Home() {
   }, []);
 
   return (
+    <>
     <Box
       sx={{
         backgroundColor: '#101014',
         color: '#fff',
-        minHeight: '100vh',
+        minHeight: '100vh', // Set the minHeight to 100vh to cover the full viewport height
+        display: 'flex', // Use flexbox layout
+        flexDirection: 'column', // Column direction for content stacking
+        justifyContent: 'space-between', // Ensure footer stays at the bottom
         fontFamily: 'Inter, sans-serif',
       }}
     >
@@ -219,6 +223,7 @@ export default function Home() {
           flexDirection: 'column',
           gap: '1rem',
           py: { xs: '1.5rem', sm: '2rem' },
+          flex: 1, // This allows the content area to take up remaining space
         }}
       >
         {/* Title Section */}
@@ -347,7 +352,7 @@ export default function Home() {
                 {errorMessage && (
                   <Typography
                     id="error-message"
-                    sx={{ color: 'rgb(255, 74, 93)', fontWeight: 800 }}
+                    sx={{ color: 'rgb(255, 74, 93)', fontWeight: 100 }}
                   >
                     {errorMessage}
                   </Typography>
@@ -432,7 +437,11 @@ export default function Home() {
           </Grid>
         </Grid>
       </Container>
+
       <Footer />
+      
     </Box>
+    
+    </>
   );
 }

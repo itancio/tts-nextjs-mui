@@ -11,7 +11,6 @@ import LinkedInIcon from '@mui/icons-material/LinkedIn';
 export const Footer = () => {
     return (
     <>
-   
     {/* Footer */}
     <Box
         sx={{
@@ -30,16 +29,16 @@ export const Footer = () => {
         <Container maxWidth="lg" sx={{ textAlign: 'center' }}>
             {/* Social media icons */}
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-            <IconButton component="a" href="https://github.com/itancio" target="_blank" sx={{ color: '#888' }}>
+            <IconButton component="a" href="https://github.com/itancio" target="_blank" sx={{ color: '#101014' }}>
                 <GitHubIcon />
             </IconButton>
-            <IconButton component="a" href="https://linkedin.com/in/irvintancioco" target="_blank" sx={{ color: '#888' }}>
+            <IconButton component="a" href="https://linkedin.com/in/irvintancioco" target="_blank" sx={{ color: '#101014' }}>
                 <LinkedInIcon />
             </IconButton>
             </Box>
             
             {/* Disclaimer */}
-            <Typography variant="body1" sx={{ marginBottom: 1, fontSize: 14, color: '#888' }}>
+            <Typography variant="body1" sx={{ marginBottom: 1, fontSize: 14, color: '#101014' }}>
             © {new Date().getFullYear()} Talkie. All rights reserved.
             </Typography>
         </Container>
