@@ -25,6 +25,56 @@ const PLAY_STATES = {
   PLAYING: 'playing',
 };
 
+const sampleTexts = [
+  {
+    title: 'Medical Reception Interaction',
+    text: `Hello, I have an appointment scheduled with Dr. Smith at 10 AM today. 
+    Could you please confirm my appointment and let me know if there's any paperwork 
+    I need to complete before my visit? Thank you.`,
+  },
+  {
+    title: 'Customer Support Call',
+    text: `Hi, I'm having trouble connecting to the internet. 
+    I've tried restarting my router and checking all cables, 
+    but I'm still unable to access any websites. Could you please help me resolve 
+    this issue as soon as possible? Thank you.`,
+  },
+  {
+    title: 'Fast Food Ordering',
+    text: `I'd like to order a cheeseburger combo, please. 
+    Could I have that with extra pickles and no onions? 
+    Also, I'd like a medium fries and a large cola to go with my meal. Thank you!`,
+  },
+  {
+    title: 'Hotel Booking Inquiry',
+    text: `Hello, I'd like to book a double room for two nights starting tomorrow, April 30th. 
+    Do you have any available rooms with a sea view? Also, could you please provide information 
+    on your check-in and check-out times? Thank you.`,
+  },
+  {
+    title: 'Job Interview Question',
+    text: `Certainly! In my previous role, we had a tight deadline on a major project 
+    that required coordinating with multiple departments. I took the initiative to organize 
+    daily stand-up meetings, streamline our workflow, and ensure clear communication. 
+    As a result, we successfully completed the project on time and exceeded our client's expectations.`,
+  },
+];
+
+const models = [
+  { label: 'Asteria', attr: 'Female US English', value: 'aura-asteria-en' },
+  { label: 'Luna', attr: 'Female US English', value: 'aura-luna-en' },
+  { label: 'Stella', attr: 'Female US English', value: 'aura-stella-en' },
+  { label: 'Athena', attr: 'Female UK English', value: 'aura-athena-en' },
+  { label: 'Hera', attr: 'Female US English', value: 'aura-hera-en' },
+  { label: 'Orion', attr: 'Male US English', value: 'aura-orion-en' },
+  { label: 'Arcas', attr: 'Male US English', value: 'aura-arcas-en' },
+  { label: 'Perseus', attr: 'Male US English', value: 'aura-perseus-en' },
+  { label: 'Angus', attr: 'Male Irish English', value: 'aura-angus-en' },
+  { label: 'Orpheus', attr: 'Male US English', value: 'aura-orpheus-en' },
+  { label: 'Helios', attr: 'Male UK English', value: 'aura-helios-en' },
+  { label: 'Zeus', attr: 'Male US English', value: 'aura-zeus-en' },
+];
+
 export default function Home() {
   const [model, setModel] = useState('');
   const [text, setText] = useState('');
@@ -32,20 +82,7 @@ export default function Home() {
   const [playState, setPlayState] = useState(PLAY_STATES.NO_AUDIO);
   const audioRef = useRef(null);
 
-  const models = [
-    { label: 'Asteria', attr: 'Female US English', value: 'aura-asteria-en' },
-    { label: 'Luna', attr: 'Female US English', value: 'aura-luna-en' },
-    { label: 'Stella', attr: 'Female US English', value: 'aura-stella-en' },
-    { label: 'Athena', attr: 'Female UK English', value: 'aura-athena-en' },
-    { label: 'Hera', attr: 'Female US English', value: 'aura-hera-en' },
-    { label: 'Orion', attr: 'Male US English', value: 'aura-orion-en' },
-    { label: 'Arcas', attr: 'Male US English', value: 'aura-arcas-en' },
-    { label: 'Perseus', attr: 'Male US English', value: 'aura-perseus-en' },
-    { label: 'Angus', attr: 'Male Irish English', value: 'aura-angus-en' },
-    { label: 'Orpheus', attr: 'Male US English', value: 'aura-orpheus-en' },
-    { label: 'Helios', attr: 'Male UK English', value: 'aura-helios-en' },
-    { label: 'Zeus', attr: 'Male US English', value: 'aura-zeus-en' },
-  ];
+
 
   const getButtonIcon = () => {
     switch (playState) {
@@ -159,6 +196,10 @@ export default function Home() {
         break;
     }
   };
+
+  const handleSampleTextClick = (sampleText) => { 
+    setText(sampleText);
+  }
 
   useEffect(() => {
     return () => {
@@ -348,51 +389,40 @@ export default function Home() {
 
           {/* Information Section */}
           <Grid item xs={12} md={6}>
-            <Box
-              className="information-section"
-              sx={{
-                marginLeft: { md: '120px' },
-                color: 'rgb(237, 237, 242)',
-              }}
-            >
-              <Typography
-                variant="h2"
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem',
+              marginTop: '1rem',
+            }}
+          >
+            {sampleTexts.map(({title, text}, index) => (
+              <Button
+                key={index}
+                variant="outlined"
+                onClick={() => handleSampleTextClick(text)}
                 sx={{
-                  fontWeight: 700,
-                  fontSize: '2rem',
-                  lineHeight: '3.75rem',
-                  letterSpacing: '-0.02em',
+                  color: '#13ef95',
+                  borderColor: '#13ef95',
+                  textTransform: 'none',
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                  '&:hover': {
+                    backgroundColor: 'rgba(19, 239, 149, 0.1)',
+                    borderColor: '#13ef95',
+                  },
                 }}
               >
-                Sample texts:
-              </Typography>
-              <List
-                sx={{
-                  fontFamily: 'Arimo, sans-serif',
-                  paddingLeft: 0,
-                  gap: '16px',
-                }}
-              >
-                <ListItem
-                  sx={{
-                    display: 'list-item',
-                    listStyleType: 'disc',
-                    marginLeft: '1em',
-                  }}
-                >
-                  This is a sample text
-                </ListItem>
-                <ListItem
-                  sx={{
-                    display: 'list-item',
-                    listStyleType: 'disc',
-                    marginLeft: '1em',
-                  }}
-                >
-                  Hello World, my name is Gaffy. Nice to meet you.
-                </ListItem>
-              </List>
-            </Box>
+                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                  {title}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#fff' }}>
+                  {text.substring(0, 50)}...
+                </Typography>
+              </Button>
+            ))}
+          </Box>
           </Grid>
         </Grid>
       </Container>
