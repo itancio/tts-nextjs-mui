@@ -195,13 +195,18 @@ export default function Home() {
   }
 
   useEffect(() => {
+    // Clear error message
+    if (model && text) {
+      setErrorMessage('')
+    }
+
     return () => {
       if (audioRef.current) {
         audioRef.current.removeEventListener('ended', handleAudioEnded);
         audioRef.current.pause();
       }
     };
-  }, []);
+  }, [model, text]);
 
   return (
     <>
@@ -340,7 +345,7 @@ export default function Home() {
                 }}
               />
 
-              {/* Button and Error Message */}
+              {/* Buttons section */}
               <Box
                 className="button-container"
                 sx={{
@@ -349,14 +354,7 @@ export default function Home() {
                   alignItems: 'center',
                 }}
               >
-                {errorMessage && (
-                  <Typography
-                    id="error-message"
-                    sx={{ color: 'rgb(255, 74, 93)', fontWeight: 100 }}
-                  >
-                    {errorMessage}
-                  </Typography>
-                )}
+                {/* Play button */}
                 <Button
                   variant="outlined"
                   id="play-button"
@@ -382,6 +380,18 @@ export default function Home() {
                 >
                   {getButtonIcon()}
                 </Button>
+
+                {/* Display error message */}
+                {errorMessage && (
+                  <Typography
+                    id="error-message"
+                    sx={{ color: 'rgb(255, 74, 93)', fontWeight: 100 }}
+                  >
+                    {errorMessage}
+                  </Typography>
+                )}
+
+                {/* Clear button */}
                 <Button
                   disabled={!text}
                   onClick={clearText}
