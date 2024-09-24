@@ -70,6 +70,16 @@ const writeAudioFile = async (buffer) => {
 
     if (!fs.existsSync(audioDirectory)) {
       fs.mkdirSync(audioDirectory, { recursive: true });
+    } 
+    else {
+      // Delete all audio files in the audio directory
+      const files = await fs.promises.readdir(audioDirectory);
+      for (const file of files) {
+        if (file.startsWith('audio_') && file !== 'default.mp3') {
+          const filePath = path.join(audioDirectory, file);
+          await fs.promises.unlink(filePath);
+        }
+      }
     }
 
     // Write audio file to 'audio' directory
