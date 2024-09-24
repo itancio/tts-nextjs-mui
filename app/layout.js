@@ -13,7 +13,7 @@ const geistMono = localFont({
 });
 
 export const metadata = {
-  title: "Deepgram",
+  title: "Talkie",
   description: "text-to-speech",
 };
 

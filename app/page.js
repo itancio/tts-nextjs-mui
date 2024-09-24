@@ -15,6 +15,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import Footer from '../components/Footer';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import StopIcon from '@mui/icons-material/Stop';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -28,35 +29,23 @@ const PLAY_STATES = {
 const sampleTexts = [
   {
     title: 'Medical Reception Interaction',
-    text: `Hello, I have an appointment scheduled with Dr. Smith at 10 AM today. 
-    Could you please confirm my appointment and let me know if there's any paperwork 
-    I need to complete before my visit? Thank you.`,
+    text: `Hello, I have an appointment scheduled with Dr. Smith at 10 AM today. Could you please confirm my appointment and let me know if there's any paperwork I need to complete before my visit? Thank you.`,
   },
   {
     title: 'Customer Support Call',
-    text: `Hi, I'm having trouble connecting to the internet. 
-    I've tried restarting my router and checking all cables, 
-    but I'm still unable to access any websites. Could you please help me resolve 
-    this issue as soon as possible? Thank you.`,
+    text: `Hi, I'm having trouble connecting to the internet. I've tried restarting my router and checking all cables, but I'm still unable to access any websites. Could you please help me resolve this issue as soon as possible? Thank you.`,
   },
   {
     title: 'Fast Food Ordering',
-    text: `I'd like to order a cheeseburger combo, please. 
-    Could I have that with extra pickles and no onions? 
-    Also, I'd like a medium fries and a large cola to go with my meal. Thank you!`,
+    text: `I'd like to order a cheeseburger combo, please. Could I have that with extra pickles and no onions? Also, I'd like a medium fries and a large cola to go with my meal. Thank you!`,
   },
   {
     title: 'Hotel Booking Inquiry',
-    text: `Hello, I'd like to book a double room for two nights starting tomorrow, April 30th. 
-    Do you have any available rooms with a sea view? Also, could you please provide information 
-    on your check-in and check-out times? Thank you.`,
+    text: `Hello, I'd like to book a double room for two nights starting tomorrow, April 30th. Do you have any available rooms with a sea view? Also, could you please provide information on your check-in and check-out times? Thank you.`,
   },
   {
     title: 'Job Interview Question',
-    text: `Certainly! In my previous role, we had a tight deadline on a major project 
-    that required coordinating with multiple departments. I took the initiative to organize 
-    daily stand-up meetings, streamline our workflow, and ensure clear communication. 
-    As a result, we successfully completed the project on time and exceeded our client's expectations.`,
+    text: `Certainly! In my previous role, we had a tight deadline on a major project that required coordinating with multiple departments. I took the initiative to organize daily stand-up meetings, streamline our workflow, and ensure clear communication. As a result, we successfully completed the project on time and exceeded our client's expectations.`,
   },
 ];
 
@@ -136,6 +125,10 @@ export default function Home() {
   const handleAudioEnded = () => {
     console.log('Audio finished playing');
     setPlayState(PLAY_STATES.NO_AUDIO);
+  };
+
+  const clearText = () => {
+    setText('');
   };
 
   const generateAudio = async () => {
@@ -251,11 +244,12 @@ export default function Home() {
               fontFamily: 'Arimo, sans-serif',
             }}
           >
-            Text-to-Speech
+            Talkie: Text-to-Speech
           </Typography>
         </Box>
 
         <Grid container spacing={4} className="grid-container">
+          
           {/* Text-to-Speech Section */}
           <Grid item xs={12} md={6}>
             <Box
@@ -383,6 +377,12 @@ export default function Home() {
                 >
                   {getButtonIcon()}
                 </Button>
+                <Button
+                  disabled={!text}
+                  onClick={clearText}
+                >
+                  clear
+                </Button>
               </Box>
             </Box>
           </Grid>
@@ -394,9 +394,15 @@ export default function Home() {
               display: 'flex',
               flexDirection: 'column',
               gap: '1rem',
-              marginTop: '1rem',
+        
             }}
           >
+            <Typography variant="h4" sx={{ marginTop: '0' }}>
+              Suggestions
+            </Typography>
+            <Typography  sx={{ marginTop: '0' }}>
+              Pick a sample text to generate audio
+            </Typography>
             {sampleTexts.map(({title, text}, index) => (
               <Button
                 key={index}
@@ -414,11 +420,11 @@ export default function Home() {
                   },
                 }}
               >
-                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                <Typography  sx={{ fontWeight: 100 }}>
                   {title}
                 </Typography>
                 <Typography variant="body2" sx={{ color: '#fff' }}>
-                  {text.substring(0, 50)}...
+                  {text.substring(0, 80)}...
                 </Typography>
               </Button>
             ))}
@@ -426,6 +432,7 @@ export default function Home() {
           </Grid>
         </Grid>
       </Container>
+      <Footer />
     </Box>
   );
 }
