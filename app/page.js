@@ -338,42 +338,14 @@ export default function Home() {
               }}
             >
               <Typography variant="h2" sx={{ fontWeight: 700, fontSize: '2rem', lineHeight: '3.75rem', letterSpacing: '-0.02em' }}>
-                Be sure to check out:
+                Sample texts:
               </Typography>
               <List sx={{ fontFamily: 'Arimo, sans-serif', paddingLeft: 0, gap: '16px' }}>
                 <ListItem sx={{ display: 'list-item', listStyleType: 'disc', marginLeft: '1em' }}>
-                  <ListItemText
-                    primary={
-                      <>
-                        The{' '}
-                        <Link
-                          href="https://github.com/deepgram-starters/text-to-speech-starter-node/tree/output-streaming"
-                          sx={{ color: '#13ef95', textDecoration: 'none' }}
-                        >
-                          output-streaming
-                        </Link>{' '}
-                        branch to learn how to play the audio back as soon as the first byte is returned from Deepgram.
-                      </>
-                    }
-                    primaryTypographyProps={{ fontSize: '20px', lineHeight: '1.75rem' }}
-                  />
+                This is a sample text
                 </ListItem>
                 <ListItem sx={{ display: 'list-item', listStyleType: 'disc', marginLeft: '1em' }}>
-                  <ListItemText
-                    primary={
-                      <>
-                        The TTS Getting Started guides in the{' '}
-                        <Link
-                          href="https://developers.deepgram.com/docs/text-to-speech"
-                          sx={{ color: '#13ef95', textDecoration: 'none' }}
-                        >
-                          Deepgram documentation
-                        </Link>
-                        .
-                      </>
-                    }
-                    primaryTypographyProps={{ fontSize: '20px', lineHeight: '1.75rem' }}
-                  />
+                Hello World, my name is Gaffy. Nice to meet you.
                 </ListItem>
               </List>
             </Box>
