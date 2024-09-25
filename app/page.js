@@ -302,7 +302,7 @@ export default function Home() {
                         alignItems: 'center',
                       }}
                     >
-                      <Typography color="#201cff">{label}</Typography>
+                      <Typography color= '#1976D2'>{label}</Typography>
                       <Typography
                         variant="body2"
                         sx={{ color: 'gray', fontSize: '12px', marginLeft: 'auto' }}
@@ -415,7 +415,7 @@ export default function Home() {
             <Typography variant="h4" sx={{ marginTop: '0' }}>
               Suggestions
             </Typography>
-            <Typography  sx={{ marginTop: '0' }}>
+            <Typography  sx={{ marginTop: '0', fontWeight: 300 }}>
               Pick a sample text to generate audio
             </Typography>
             {sampleTexts.map(({title, text}, index) => (
@@ -435,10 +435,10 @@ export default function Home() {
                   },
                 }}
               >
-                <Typography  sx={{ fontWeight: 100 }}>
+                <Typography  sx={{ fontWeight: 100, color: 'white' }} gutterBottom>
                   {title}
                 </Typography>
-                <Typography variant="body2" sx={{ color: '#fff' }}>
+                <Typography variant="body2" sx={{ color: '#888' }} gutterBottom>
                   {text.substring(0, 80)}...
                 </Typography>
               </Button>

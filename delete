@@ -1,0 +1,229 @@
+'use client'
+
+import Image from 'next/image';
+import {
+  Box,
+  Button,
+  Container,
+  FormControl,
+  Grid2, 
+  InputLabel, 
+  MenuItem, 
+  Select, 
+  Stack, 
+  TextField, 
+  Typography
+} from '@mui/material';
+import "./style.css";
+import {useState, useEffect} from 'react'
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import CircularProgress from '@mui/material/CircularProgress';
+
+
+const models = [
+  { 'label': 'Asteria',
+    'attr': 'Female US English',
+    'value': 'aura-asteria-en'
+  },
+  { 'label': 'Luna',
+    'attr': 'Female US English',
+    'value': 'aura-luna-en'
+  },
+  {
+    'label': 'Stella',
+    'attr': 'Female US English',
+    'value': 'aura-stella-en'
+  },
+  {
+    'label': 'Athena',
+    'attr': 'Female UK English',
+    'value': 'aura-athena-en'
+  },
+  {
+    'label': 'Hera',
+    'attr': 'Female US English',
+    'value': 'aura-hera-en'
+  },
+  {
+    'label': 'Orion',
+    'attr': 'Male US English',
+    'value': 'aura-orion-en'
+  },
+  {
+    'label': 'Arcas',
+    'attr': 'Male US English',
+    'value': 'aura-arcas-en'
+  },
+  {
+    'label': 'Perseus',
+    'attr': 'Male US English',
+    'value': 'aura-perseus-en'
+  },
+  {
+    'label': 'Angus',
+    'attr': 'Male Irish English',
+    'value': 'aura-angus-en'
+  },
+  {
+    'label': 'Orpheus',
+    'attr': 'Male US English',
+    'value': 'aura-orpheus-en'
+  },
+  {
+    'label': 'Helios',
+    'attr': 'Male UK English',
+    'value': 'aura-helios-en'
+  },
+  {
+    'label': 'Zeus',
+    'attr': 'Male US English',
+    'value': 'aura-zeus-en'
+  },
+]
+
+const PLAY_STATES = {
+  NO_AUDIO: "no_audio",
+  LOADING: "loading",
+  PLAYING: "playing",
+}
+
+
+
+export default function Home() {
+  const [voice, setVoice] = useState('');
+  const [text, setText] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null)
+
+  const playAudio = (audioUrl) => {
+    if (audio) {
+      stopAudio();
+    }
+    currentAudioUrl = audioUrl + '?t=' + new Date().getTime();
+    audio = new Audio(currentAudioUrl);
+    audio.play();
+  }
+  const generateAudio = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const params = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+        voice: voice,
+        text: text,
+        }),
+      }
+
+      console.log('generateAudio: ', voice, text)
+
+      const response = await fetch(`api/voice`, params)
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json()
+      playAudio(data.audioUrl);
+      playState = PLAY_STATES.PLAYING;
+      updatePlayButton();
+    } catch (error) {
+      setError(error.message)
+      setLoading(false)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+  <>
+  <Box sx={{ flexGrow: 1, bgcolor: '#121212', minHeight: '100vh', color: '#ffffff' }}>
+    <Container maxWidth="md" sx={{ bgcolor: '#121212', minHeight: '100vh', color: '#ffffff' }}>
+
+    {/* Title Section */}
+    <Box className='title'>
+      <Typography className='h1'>Text-to-Speech</Typography>
+    </Box>
+
+    {/* Text-to-Speech Section */}
+    <Stack className='tts-section'>
+      <FormControl sx={{width: 300}}>
+        <InputLabel id="demo-simple-select-label">Models</InputLabel>
+        <Select   
+          sx={{backgroundColor: 'white'}}
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={voice}
+          label="models"
+          onChange={(e) => setVoice(e.target.value)}
+          iconend={<ArrowDropDownIcon/>}
+        >
+          {
+            models.map( ({label, value, attr}, index) => (
+              <MenuItem key={index} value={value} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography>{label}</Typography>
+              <Typography variant="body2" sx={{ color: 'blue', fontSize: '12px', marginLeft: 'auto' }}>
+                {attr}
+              </Typography>
+            </MenuItem>
+            ))
+          }
+        </Select>
+        <TextField 
+          id="outlined-basic" 
+          label="Add text to be synthesized..." 
+          variant="outlined"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          fullWidth 
+          multiline
+          rows={8}
+          sx={{backgroundColor: 'red',
+            borderRadius: '12px',
+            my: 2,
+          }}
+        >
+        </TextField>
+        <Box className='button-container'>
+          <Button 
+            variant="outlined" 
+            sx={{
+              background: (!text.trim() || !voice.trim()) 
+                ? `linear-gradient(#101014, #101014) padding-box,
+                linear-gradient(200deg, #13ef95 -191.5%, #101014 80.05%) border-box`
+                : `linear-gradient(#000, #000) padding-box,
+                linear-gradient(90deg, #201cff -91.5%, #13ef95 80.05%) border-box`,
+              height: '48px',
+              width: '113px',
+              border: '1px solid transparent',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              '&:hover': {
+                background: '#13ef95', // Changed to a plain background color
+              },
+              '&:hover svg': {
+                color: '#101014', // Makes the icon transparent on hover
+              },
+            }}
+            disabled={!text.trim() || !voice.trim()}
+            onClick={generateAudio} >
+            {loading ? (
+              <CircularProgress size={24} />
+            ) : (
+              <PlayArrowIcon sx={{ fontSize: 24, color: '#13ef95' }}/>
+            )}
+          </Button>
+        </Box>
+      </FormControl>
+
+    </Stack>
+
+  </Container>
+  </Box>
+  </>
+  );
+}
