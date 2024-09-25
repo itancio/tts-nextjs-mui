@@ -10,12 +10,14 @@ dotenv.config();
 const deepgram = createClient(process.env.DEEPGRAM_API_KEY);
 
 export async function POST(req) {
-  const { text, voice } = await req.json();
-
-  console.log("Initializing request: ", text, voice);
+  const body = await req.json();
+  console.log("Initializing body request: ", body);
+  
+  const { text, model } = await body
+  console.log("Initializing request: ", text, model);
 
   try {
-    const filePath = await getAudio(text, voice);
+    const filePath = await getAudio(text, model);
     return NextResponse.json({ audioUrl: filePath });
   } catch (error) {
     console.error("Error during API request:", error.message);

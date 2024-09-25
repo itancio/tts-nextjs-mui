@@ -141,7 +141,7 @@ export default function Home() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          voice: model,
+          model: model,
           text: text,
         }),
       });
