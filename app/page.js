@@ -76,13 +76,13 @@ export default function Home() {
   const getButtonIcon = () => {
     switch (playState) {
       case PLAY_STATES.NO_AUDIO:
-        return <PlayArrowIcon sx={{ fontSize: '1.5rem', color: 'inherit' }} />;
+        return <PlayArrowIcon sx={{ fontSize: '1.5rem', color: '#13ef95' }} />;
       case PLAY_STATES.LOADING:
         return <CircularProgress size={24} />;
       case PLAY_STATES.PLAYING:
-        return <StopIcon sx={{ fontSize: '1.5rem', color: 'inherit' }} />;
+        return <StopIcon sx={{ fontSize: '1.5rem', color: '#13ef95' }} />;
       default:
-        return <PlayArrowIcon sx={{ fontSize: '1.5rem', color: 'inherit' }} />;
+        return <PlayArrowIcon sx={{ fontSize: '1.5rem', color: '#13ef95' }} />;
     }
   };
 
@@ -360,21 +360,18 @@ export default function Home() {
                   id="play-button"
                   onClick={handlePlayButtonClick}
                   sx={{
-                    background:
-                      playState === PLAY_STATES.PLAYING
-                        ? `linear-gradient(#000, #000) padding-box,
-                        linear-gradient(90deg, #201cff -91.5%, #13ef95 80.05%) border-box`
-                        : `linear-gradient(#101014, #101014) padding-box,
-                        linear-gradient(200deg, #13ef95 -191.5%, #101014 80.05%) border-box`,
+                    background: `linear-gradient(#000, #000) padding-box,
+                        linear-gradient(90deg, #201cff -91.5%, #13ef95 80.05%) border-box`,
                     height: '48px',
                     width: '113px',
                     border: '1px solid transparent',
                     borderRadius: '4px',
                     cursor: 'pointer',
-                    color: '#13ef95',
                     '&:hover': {
-                      backgroundColor: '#13ef95',
-                      color: '#101014',
+                      background: '#13ef95', // Changed to a plain background color
+                    },
+                    '&:hover svg': {
+                      color: '#101014', // Makes the icon transparent on hover
                     },
                   }}
                 >
@@ -425,7 +422,8 @@ export default function Home() {
                 onClick={() => handleSampleTextClick(text)}
                 sx={{
                   color: '#13ef95',
-                  borderColor: '#13ef95',
+                  background: `linear-gradient(#000, #000) padding-box,
+                        linear-gradient(90deg, #201cff -91.5%, #13ef95 80.05%) border-box`,
                   textTransform: 'none',
                   flexDirection: 'column',
                   alignItems: 'flex-start',
