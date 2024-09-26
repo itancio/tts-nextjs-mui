@@ -3,7 +3,7 @@ import { createClient } from '@deepgram/sdk';
 import fs from 'fs';
 import path from 'path';
 import dotenv from 'dotenv';
-import { put } from '@vercel/blob'
+import { put, list, del } from '@vercel/blob'
 
 dotenv.config();
 
@@ -89,15 +89,42 @@ const getAudioBuffer = async (stream) => {
 };
 
 
+// Helper function to clear the 'audio' directory
+const deleteAllBlobs = async (directory) => {
+  console.log('Initialize deleteAllBlobs in ', directory)
+
+  try {
+    const result = await list()
+    const size = result.blobs.length
+    console.log('Blobs result: ', result, 'size: ', size)
+  
+    await del(result.blobs.map((blob) => blob.url))
+
+    console.log(`Deleted ${size} files in ${directory}`);
+
+  } catch (err) {
+    console.error(`Error clearing directory ${directory}:`, err);
+  }
+};
+
 // Helper function to write audio file to 'audio' directory
 const writeAudioFile = async (buffer) => {
   try {
+    const audioDirectory = 'audio';
 
-    // Write audio file to 'audio' directory
+    // Ensure the 'audio' directory exists
+    if (!fs.existsSync(audioDirectory)) {
+      fs.mkdirSync(audioDirectory, { recursive: true });
+    }
+
+    // Clear the directory before saving a new file
+    await deleteAllBlobs(audioDirectory);
+
+    // Define the file path for the new audio file
     const filename = `audio/output.mp3`;
 
-    // Store audio buffer to the server
-    const {url} = await put(filename, buffer, {access: 'public'})
+    // Store the audio buffer to the server or locally
+    const { url } = await put(filename, buffer, { access: 'public' });
 
     console.log(`Audio file saved successfully at: ${url}`);
 
