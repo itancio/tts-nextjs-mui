@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from '@deepgram/sdk';
+import { createClient, LiveTTSEvents } from '@deepgram/sdk';
 import fs from 'fs';
 import path from 'path';
 import dotenv from 'dotenv';
@@ -17,7 +17,7 @@ export async function POST(req) {
   console.log("Initializing request: ", text, model);
 
   try {
-    const filePath = await getAudio(text, model);
+    const filePath = getAudio(text, model);
     return NextResponse.json({ audioUrl: filePath });
   } catch (error) {
     console.error("Error during API request:", error.message);
@@ -25,6 +25,98 @@ export async function POST(req) {
     return NextResponse.json({ error: 'Error generating audio' }, { status: 500 });
   }
 }
+
+/////////////////////////////////////
+//
+// Methods for streaming audio
+//
+/////////////////////////////////////
+const getLiveAudio = async (text, model) => {
+  console.log('getLiveAudio text: ', text, ' model: ', model);
+  const deepgram = createClient(process.env.DEEPGRAM_API_KEY);
+
+  // STEP 2: Make a live Deepgram connection
+  const dgConnection = deepgram.speak.live({ model: model });
+
+  console.log('Deepgram live response:', dgConnection);
+
+  let audioBuffer = Buffer.alloc(0);
+
+  dgConnection.on(LiveTTSEvents.Open, () => {
+    console.log("Connection opened");
+
+    // Send text data for TTS synthesis
+    dgConnection.sendText(text);
+
+    // Send Flush message to the server after sending the text
+    dgConnection.flush();
+
+    dgConnection.on(LiveTTSEvents.Close, () => {
+      console.log("Connection closed");
+    });
+
+    dgConnection.on(LiveTTSEvents.Metadata, (data) => {
+      console.dir(data, { depth: null });
+    });
+
+    dgConnection.on(LiveTTSEvents.Audio, (data) => {
+      console.log("Deepgram audio data received: ", data);
+      // Concatenate the audio chunks into a single buffer
+      const buffer = Buffer.from(data);
+      audioBuffer = Buffer.concat([audioBuffer, buffer]);
+      console.log('Received buffer: ', audioBuffer)
+    });
+
+    dgConnection.on(LiveTTSEvents.Flushed, () => {
+      console.log("Deepgram Flushed");
+      // Write the buffered audio data to a file when the flush event is received
+      writeFile(audioBuffer);
+    });
+
+    dgConnection.on(LiveTTSEvents.Error, (err) => {
+      console.error(err);
+    });
+  });
+};
+
+const writeFile = async (audioBuffer) => {
+  // Create 'audio' directory if it doesn't exist
+  const audioDirectory = 'public/audio';
+
+  if (!fs.existsSync(audioDirectory)) {
+    fs.mkdirSync(audioDirectory, { recursive: true });
+  }
+  else {
+    // Delete all audio files in the audio directory
+    const files = await fs.promises.readdir(audioDirectory);
+    for (const file of files) {
+      if (file.startsWith('audio_') && file !== 'default.mp3') {
+        const filePath = path.join(audioDirectory, file);
+        await fs.promises.unlink(filePath);
+      }
+    }
+  }
+
+  if (audioBuffer.length > 0) {
+    // Write audio file to 'audio' directory
+    const filename = `audio_${Date.now()}.mp3`;
+    const filePath = path.join(audioDirectory, filename);
+    fs.writeFile(filePath, audioBuffer, (err) => {
+      if (err) {
+        console.error("Error writing audio file:", err);
+      } else {
+        console.log("Audio file saved as ", filename);
+      }
+    });
+    audioBuffer = Buffer.alloc(0); // Reset buffer after writing
+  }
+};
+
+
+
+/////////////////////////////////////
+// Methods for non-streaming audio
+/////////////////////////////////////
 
 const getAudio = async (text, model) => {
   console.log('getAudio text:', text, ' model:', model);
@@ -64,6 +156,28 @@ const getAudio = async (text, model) => {
   }
 };
 
+// Helper function to convert stream to audio buffer
+const getAudioBuffer = async (stream) => {
+  const reader = stream.getReader();
+  const chunks = [];
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    chunks.push(value);
+  }
+
+  // Combine all chunks into a single Uint8Array
+  const dataArray = chunks.reduce(
+    (acc, chunk) => Uint8Array.from([...acc, ...chunk]),
+    new Uint8Array(0)
+  );
+
+  // Create a Node.js buffer that handles binary data efficiently
+  return Buffer.from(dataArray.buffer);
+};
+
 // Helper function to write audio file to 'audio' directory
 const writeAudioFile = async (buffer) => {
   try {
@@ -98,26 +212,4 @@ const writeAudioFile = async (buffer) => {
     console.error("Stack trace:", error.stack);
     throw new Error("An error occurred while writing the audio file.");
   }
-};
-
-// Helper function to convert stream to audio buffer
-const getAudioBuffer = async (stream) => {
-  const reader = stream.getReader();
-  const chunks = [];
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-
-    chunks.push(value);
-  }
-
-  // Combine all chunks into a single Uint8Array
-  const dataArray = chunks.reduce(
-    (acc, chunk) => Uint8Array.from([...acc, ...chunk]),
-    new Uint8Array(0)
-  );
-
-  // Create a Node.js buffer that handles binary data efficiently
-  return Buffer.from(dataArray.buffer);
 };

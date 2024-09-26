@@ -16,3 +16,8 @@ To deploy to vercel:
 ```bash
 vercel deploy
 ```
+
+To deploy to production:
+```bash
+vercel --prod
+```
