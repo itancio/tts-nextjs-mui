@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 import { createClient } from '@deepgram/sdk';
-import fs from 'fs';
-import path from 'path';
 import dotenv from 'dotenv';
 import { put, list, del } from '@vercel/blob'
 
@@ -110,18 +108,19 @@ const deleteAllBlobs = async (directory) => {
 // Helper function to write audio file to 'audio' directory
 const writeAudioFile = async (buffer) => {
   try {
-    const audioDirectory = 'audio';
-
-    // Ensure the 'audio' directory exists
-    if (!fs.existsSync(audioDirectory)) {
-      fs.mkdirSync(audioDirectory, { recursive: true });
+    if (!buffer) {
+      console.error('Error: Buffer is null');
+      throw new Error('Error writing audio: Buffer is null');
     }
 
+    const dirname = 'audio';
+    console.log('Initialize writeAudioFile. Created Audio directory');
+
     // Clear the directory before saving a new file
-    await deleteAllBlobs(audioDirectory);
+    await deleteAllBlobs(dirname);
 
     // Define the file path for the new audio file
-    const filename = `audio/output.mp3`;
+    const filename = `${dirname}/output.mp3`;
 
     // Store the audio buffer to the server or locally
     const { url } = await put(filename, buffer, { access: 'public' });
