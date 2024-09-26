@@ -64,6 +64,29 @@ const getAudio = async (text, model) => {
   }
 };
 
+// Helper function to convert stream to audio buffer
+const getAudioBuffer = async (stream) => {
+  const reader = stream.getReader();
+  const chunks = [];
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    chunks.push(value);
+  }
+
+  // Combine all chunks into a single Uint8Array
+  const dataArray = chunks.reduce(
+    (acc, chunk) => Uint8Array.from([...acc, ...chunk]),
+    new Uint8Array(0)
+  );
+
+  // Create a Node.js buffer that handles binary data efficiently
+  return Buffer.from(dataArray.buffer);
+};
+
+
 // Helper function to write audio file to 'audio' directory
 const writeAudioFile = async (buffer) => {
   try {
@@ -98,26 +121,4 @@ const writeAudioFile = async (buffer) => {
     console.error("Stack trace:", error.stack);
     throw new Error("An error occurred while writing the audio file.");
   }
-};
-
-// Helper function to convert stream to audio buffer
-const getAudioBuffer = async (stream) => {
-  const reader = stream.getReader();
-  const chunks = [];
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-
-    chunks.push(value);
-  }
-
-  // Combine all chunks into a single Uint8Array
-  const dataArray = chunks.reduce(
-    (acc, chunk) => Uint8Array.from([...acc, ...chunk]),
-    new Uint8Array(0)
-  );
-
-  // Create a Node.js buffer that handles binary data efficiently
-  return Buffer.from(dataArray.buffer);
 };
