@@ -3,6 +3,7 @@ import { createClient } from '@deepgram/sdk';
 import fs from 'fs';
 import path from 'path';
 import dotenv from 'dotenv';
+import { put } from '@vercel/blob'
 
 dotenv.config();
 
@@ -14,7 +15,7 @@ export async function POST(req) {
   console.log("Initializing body request: ", body);
   
   const { text, model } = await body
-  console.log("Initializing request: ", text, model);
+  console.log(`Initializing request with params: {text: ${text}, model: ${model}}`);
 
   try {
     const filePath = await getAudio(text, model);
@@ -27,7 +28,7 @@ export async function POST(req) {
 }
 
 const getAudio = async (text, model) => {
-  console.log('getAudio text:', text, ' model:', model);
+  console.log('getAudio text:', text, ', model:', model);
 
   // STEP 2: Make a request and configure the request with options
   const response = await deepgram.speak.request({ text: text }, { model: model });
@@ -50,8 +51,9 @@ const getAudio = async (text, model) => {
 
       console.log('Received buffer:', buffer);
 
-      // STEP 5: Write the audio buffer to a file
+      // // STEP 5: Write the audio buffer to a file
       const filename = await writeAudioFile(buffer);
+
       console.log('Returning audio file named:', filename);
       return filename; // Return the filename string
     } else {
@@ -90,32 +92,16 @@ const getAudioBuffer = async (stream) => {
 // Helper function to write audio file to 'audio' directory
 const writeAudioFile = async (buffer) => {
   try {
-    // Create 'audio' directory if it doesn't exist
-    const audioDirectory = path.join(process.cwd(), 'public', 'audio');
-
-    if (!fs.existsSync(audioDirectory)) {
-      fs.mkdirSync(audioDirectory, { recursive: true });
-    } 
-    else {
-      // Delete all audio files in the audio directory
-      const files = await fs.promises.readdir(audioDirectory);
-      for (const file of files) {
-        if (file.startsWith('audio_') && file !== 'default.mp3') {
-          const filePath = path.join(audioDirectory, file);
-          await fs.promises.unlink(filePath);
-        }
-      }
-    }
 
     // Write audio file to 'audio' directory
-    const filename = `audio_${Date.now()}.mp3`;
-    const filePath = path.join(audioDirectory, filename);
+    const filename = `audio/output.mp3`;
 
-    await fs.promises.writeFile(filePath, buffer);
+    // Store audio buffer to the server
+    const {url} = await put(filename, buffer, {access: 'public'})
 
-    console.log(`Audio file saved successfully at: ${filePath}`);
+    console.log(`Audio file saved successfully at: ${url}`);
 
-    return `audio/${filename}`;
+    return url;
   } catch (error) {
     console.error("Error writing audio file:", error.message);
     console.error("Stack trace:", error.stack);

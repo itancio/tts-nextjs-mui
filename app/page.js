@@ -28,6 +28,10 @@ const PLAY_STATES = {
 
 const sampleTexts = [
   {
+    title: 'Greeting',
+    text: `Hi`,
+  },
+  {
     title: 'Medical Reception Interaction',
     text: `Hello, I have an appointment scheduled with Dr. Smith at 10 AM today. Could you please confirm my appointment and let me know if there's any paperwork I need to complete before my visit? Thank you.`,
   },
