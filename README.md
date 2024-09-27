@@ -1,7 +1,9 @@
 # Text-to-Speech
 
 
-[link](https://tts-nextjs-mui.vercel.app/)
+[Try it here](https://tts-nextjs-mui.vercel.app/)
+
+[Demo](https://youtu.be/GgT_tOflNSE)
 
 ![preview](public/assets/preview2.png)
 
@@ -15,4 +17,9 @@ npm run dev
 To deploy to vercel:
 ```bash
 vercel deploy
+```
+
+To deploy production to vercel:
+```bash
+vercel --prod
 ```
